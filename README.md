@@ -8,3 +8,6 @@ cd asterisk_exporter
 chmod 755 install.sh
 
 sh install.sh
+
+###Fix error when install prometheus fail###
+pip3.4  install prometheus
