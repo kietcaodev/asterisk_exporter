@@ -1,0 +1,71 @@
+#!/usr/bin/env python3.4
+import inspect
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
+
+import threading
+from http.server import HTTPServer
+import socket
+import time
+
+from prometheus.collectors import Gauge
+from prometheus.registry import Registry
+from prometheus.exporter import PrometheusMetricHandler
+
+PORT_NUMBER = 9255
+
+def gather_data(registry):
+    """Gathers the metrics"""
+    host = socket.gethostname()
+
+    asterisk_total_active_channels_metric = Gauge("asterisk_active_channels", "Total current acitve channels",
+                       {'host': host})
+    asterisk_total_active_calls_metric = Gauge("asterisk_active_calls", "Total current acitve calls",
+                       {'host': host})
+    asterisk_total_calls_processed_metric = Gauge("asterisk_calls_processed", "Total current calls processed",
+                       {'host': host})
+    asterisk_total_sip_peers_metric = Gauge("asterisk_sip_peers", "Total sip peers",
+                       {'host': host})
+    asterisk_total_sip_peers_online_metric = Gauge("asterisk_sip_peers_online", "Total sip peers online",
+                       {'host': host})
+    asterisk_total_sip_peers_offline_metric = Gauge("asterisk_sip_peers_offline", "Total sip peers offline",
+                       {'host': host})
+    asterisk_total_core_uptime_metric = Gauge("asterisk_core_uptime", "Total core uptime",
+                       {'host': host})   
+    kamailio_active_recording_total_metric = Gauge("kamailio_active_recording_total", "Kamailio active recording total",
+                       {'host': host})                            
+
+
+
+    registry.register(kamailio_active_recording_total_metric)
+
+
+    while True:
+        time.sleep(1)
+
+
+        command_kamailio_active_recording = "ls /tmp/rtpengine/recording/ | wc -l"
+
+
+        
+        kamailio_active_recording = os.popen(command_kamailio_active_recording).read()
+        kamailio_active_recording_total_metric.set({'type': "kamailio_active_recording", }, kamailio_active_recording)
+                
+        
+if __name__ == "__main__":
+
+    registry = Registry()
+
+    thread = threading.Thread(target=gather_data, args=(registry, ))
+    thread.start()
+    try:
+        def handler(*args, **kwargs):
+            PrometheusMetricHandler(registry, *args, **kwargs)
+
+        server = HTTPServer(('', PORT_NUMBER), handler)
+        server.serve_forever()
+
+    except KeyboardInterrupt:
+        server.socket.close()
+        thread.join()
