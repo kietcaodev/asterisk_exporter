@@ -35,10 +35,18 @@ def gather_data(registry):
                        {'host': host})   
     kamailio_active_recording_total_metric = Gauge("kamailio_active_recording_total", "Kamailio active recording total",
                        {'host': host})                            
-
+    kamailio_active_call_total_metric = Gauge("kamailio_active_call_total", "Kamailio active call total",
+                       {'host': host})         
+    kamailio_current_connections_total_metric = Gauge("kamailio_current_connections_total", "Kamailio current connections total",
+                       {'host': host})    
+    kamailio_max_connections_total_metric = Gauge("kamailio_max_connections_total_metric", "Kamailio max connections total",
+                       {'host': host})   
 
 
     registry.register(kamailio_active_recording_total_metric)
+    registry.register(kamailio_active_call_total_metric)
+    registry.register(kamailio_current_connections_total_metric)
+    registry.register(kamailio_max_connections_total_metric)
 
 
     while True:
@@ -46,12 +54,23 @@ def gather_data(registry):
 
 
         command_kamailio_active_recording = "ls /tmp/rtpengine/recording/ | wc -l"
-
+        command_kamailio_active_call = "kamctl rpc dlg.stats_active | grep all | awk '{print $2}'"
+        command_kamailio_current_connections = "kamcmd stats.get_statistics all | grep ws_sip_current_connections | awk '{print $3}'"
+        command_kamailio_max_connections = "kamcmd stats.get_statistics all | grep 'websocket:ws_sip_max_concurrent_connections' | awk '{print $3}'"
 
         
         kamailio_active_recording = os.popen(command_kamailio_active_recording).read()
         kamailio_active_recording_total_metric.set({'type': "kamailio_active_recording", }, kamailio_active_recording)
-                
+        
+        kamailio_active_call = os.popen(command_kamailio_active_call).read()
+        kamailio_active_call_total_metric.set({'type': "kamailio_active_call", }, kamailio_active_call)
+
+        kamailio_current_connections = os.popen(command_kamailio_current_connections).read()
+        kamailio_current_connections_total_metric.set({'type': "kamailio_current_connections", }, kamailio_current_connections)                
+
+        kamailio_max_connections = os.popen(command_kamailio_max_connections).read()
+        kamailio_max_connections_total_metric.set({'type': "kamailio_max_connections", }, kamailio_max_connections)   
+
         
 if __name__ == "__main__":
 
