@@ -11,7 +11,7 @@ chmod 755 install.sh
 
 sh install.sh
 
-####Install for asterisk####
+####Install for kamailio####
 
 cd /tmp
 
