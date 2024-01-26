@@ -23,5 +23,17 @@ chmod 755 install_kama.sh
 
 sh install_kama.sh
 
+####Install for VP recording ####
+
+cd /tmp
+
+git clone https://github.com/kietcaodev/asterisk_exporter.git
+
+cd asterisk_exporter
+
+chmod 755 install_monitor_recording.sh
+
+sh install_monitor_recording.sh
+
 ###Fix error when install prometheus fail###
 pip3.4  install prometheus
