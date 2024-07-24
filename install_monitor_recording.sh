@@ -4,7 +4,7 @@ sudo yum install python34-setuptools -y
 sudo easy_install-3.4 pip
 pip3 install prometheus
 git clone https://github.com/kietcaodev/asterisk_exporter.git
-cd asterisk_recording_exporter
+cd /tmp/asterisk_recording_exporter
 cp asterisk_recording_exporter /usr/local/bin/asterisk_recording_exporter
 chmod 755 /usr/local/bin/asterisk_recording_exporter
 cat << FLAG > /etc/systemd/system/asterisk_recording_exporter.service
