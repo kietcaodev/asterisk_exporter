@@ -35,5 +35,17 @@ chmod 755 install_monitor_recording.sh
 
 sh install_monitor_recording.sh
 
+####Install for Webrtc recording ####
+
+cd /tmp
+
+git clone https://github.com/kietcaodev/asterisk_exporter.git
+
+cd asterisk_exporter
+
+chmod 755 install_webrtc_recording_monitor.sh
+
+sh install_webrtc_recording_monitor.sh
+
 ###Fix error when install prometheus fail###
 pip3.4  install prometheus
