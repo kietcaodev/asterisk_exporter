@@ -48,4 +48,7 @@ chmod 755 install_webrtc_recording_monitor.sh
 sh install_webrtc_recording_monitor.sh
 
 ###Fix error when install prometheus fail###
+
 pip3.4  install prometheus
+
+python3.4 -m pip install --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host=files.pythonhosted.org prometheus
