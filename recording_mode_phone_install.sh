@@ -6,7 +6,7 @@ sudo easy_install-3.4 pip
 pip3 install --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host=files.pythonhosted.org prometheus
 git clone https://github.com/kietcaodev/asterisk_exporter.git
 cd /tmp/asterisk_recording_exporter
-cp asterisk_recording_exporter /usr/local/bin/recording_mode_phone_exporter
+cp recording_mode_phone_exporter /usr/local/bin/recording_mode_phone_exporter
 chmod 755 /usr/local/bin/recording_mode_phone_exporter
 cat << FLAG > /etc/systemd/system/recording_mode_phone_exporter.service
 [Unit]
