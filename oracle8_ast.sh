@@ -1,7 +1,7 @@
 pip3 install --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host=files.pythonhosted.org prometheus
 git clone https://github.com/kietcaodev/asterisk_exporter.git
 cd asterisk_exporter
-cp asterisk_exporter /usr/local/bin/asterisk_exporter_oracle
+cp asterisk_exporter_oracle /usr/local/bin/asterisk_exporter_oracle
 chmod 755 /usr/local/bin/asterisk_exporter_oracle
 cat << FLAG > /etc/systemd/system/asterisk_exporter.service
 [Unit]
