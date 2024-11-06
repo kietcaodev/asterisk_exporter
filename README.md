@@ -10,7 +10,9 @@ cd asterisk_exporter
 chmod 755 install.sh
 
 sh install.sh
+
 ####For Oracle8####
+
 cd /tmp
 
 git clone https://github.com/kietcaodev/asterisk_exporter.git
@@ -20,6 +22,7 @@ cd asterisk_exporter
 chmod 755 install.sh
 
 sh oracle8_ast.sh
+
 ####Install for kamailio####
 
 cd /tmp
