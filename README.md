@@ -80,6 +80,7 @@ git clone https://github.com/kietcaodev/asterisk_exporter.git
 cd asterisk_exporter
 
 sh node_exporter.sh
+
 ###Fix error when install prometheus fail###
 
 pip3.4  install prometheus
