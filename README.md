@@ -71,6 +71,12 @@ chmod 755 recording_mode_phone_install.sh
 
 sh recording_mode_phone_install.sh
 
+####Install node exporter####
+git clone https://github.com/kietcaodev/asterisk_exporter.git
+
+cd asterisk_exporter
+
+sh node_exporter.sh
 ###Fix error when install prometheus fail###
 
 pip3.4  install prometheus
