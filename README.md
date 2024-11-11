@@ -72,6 +72,9 @@ chmod 755 recording_mode_phone_install.sh
 sh recording_mode_phone_install.sh
 
 ####Install node exporter####
+
+cd /tmp
+
 git clone https://github.com/kietcaodev/asterisk_exporter.git
 
 cd asterisk_exporter
