@@ -15,10 +15,21 @@ from prometheus.exporter import PrometheusMetricHandler
 
 PORT_NUMBER = 9255
 
+def execute_command(command):
+    """Execute command and properly close the file handle to prevent memory leak"""
+    pipe = os.popen(command)
+    try:
+        result = pipe.read()
+        return result
+    finally:
+        pipe.close()
+
+
 def gather_data(registry):
     """Gathers the metrics"""
     host = socket.gethostname()
 
+    # Create metrics ONCE outside the loop to prevent memory leak
     asterisk_total_active_calls_metric = Gauge("asterisk_active_calls", "Total current acitve calls",
                        {'host': host})
     asterisk_total_calls_processed_metric = Gauge("asterisk_calls_processed", "Total current calls processed",
@@ -30,46 +41,69 @@ def gather_data(registry):
     asterisk_total_sip_peers_offline_metric = Gauge("asterisk_sip_peers_offline", "Total sip peers offline",
                        {'host': host})
     asterisk_total_core_uptime_metric = Gauge("asterisk_core_uptime", "Total core uptime",
-                       {'host': host})       
+                       {'host': host})
+    cpu_usage_metric = Gauge("cpu_usage", "Cpu Usage",
+                       {'host': host})
+    ram_usage_metric = Gauge("ram_usage", "Ram Usage",
+                       {'host': host})
+    disk_usage_metric = Gauge("disk_usage", "Disk Usage",
+                       {'host': host})
 
-
+    # Register metrics ONCE
     registry.register(asterisk_total_active_calls_metric)
     registry.register(asterisk_total_calls_processed_metric)
     registry.register(asterisk_total_sip_peers_metric)
     registry.register(asterisk_total_sip_peers_online_metric)
     registry.register(asterisk_total_sip_peers_offline_metric)
     registry.register(asterisk_total_core_uptime_metric)
+    registry.register(cpu_usage_metric)
+    registry.register(ram_usage_metric)
+    registry.register(disk_usage_metric)
 
+    # Define commands once
+    command_active_calls = "asterisk -rx 'core show calls' | grep 'active call' | awk '{print $1}'"
+    command_calls_processed = "asterisk -rx 'core show channels' | grep 'calls processed' | awk '{print $1}'"
+    command_sip_peers = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $1}'"
+    command_sip_peers_online = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $5}'"
+    command_sip_peers_offline = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $7}'"
+    command_core_uptime = "asterisk -rx 'core show uptime seconds' | grep 'System uptime' | awk '{print $3}'"
+    command_cpu_usage = "top -bn1 | grep asterisk | head -n 1 | awk '{print $9}'"
+    command_ram_usage = "free | grep Mem | awk '{print $3}' | awk '{print $1 / 1024 }' | perl -pe 's/\..*//'"
+    command_disk_usage = "df / | grep / | awk '{ print $5 }' | sed 's/%//'"
 
     while True:
         time.sleep(1)
 
-        command_active_calls = "asterisk -rx 'core show calls' | grep 'active call' | awk '{print $1}'"
-        command_calls_processed = "asterisk -rx 'core show channels' | grep 'calls processed' | awk '{print $1}'"
-        command_sip_peers = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $1}'"
-        command_sip_peers_online = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $5}'"
-        command_sip_peers_offline = "asterisk -rx 'sip show peers' | grep 'sip peers' | awk '{print $7}'"
-        command_core_uptime = "asterisk -rx 'core show uptime seconds' | grep 'System uptime' | awk '{print $3}'"
-
-        active_calls = os.popen(command_active_calls).read()
+        # Use execute_command helper to properly close file handles
+        active_calls = execute_command(command_active_calls)
         asterisk_total_active_calls_metric.set({'type': "active calls", }, active_calls)
 
-        calls_processed = os.popen(command_calls_processed).read()
+        calls_processed = execute_command(command_calls_processed)
         asterisk_total_calls_processed_metric.set({'type': "calls processed", }, calls_processed)
-        
-        sip_peers = os.popen(command_sip_peers).read()
+
+        sip_peers = execute_command(command_sip_peers)
         asterisk_total_sip_peers_metric.set({'type': "sip peers", }, sip_peers)
-        
-        sip_peers_online = os.popen(command_sip_peers_online).read()
+
+        sip_peers_online = execute_command(command_sip_peers_online)
         asterisk_total_sip_peers_online_metric.set({'type': "sip peers online", }, sip_peers_online)
 
-        sip_peers_offline = os.popen(command_sip_peers_offline).read()
+        sip_peers_offline = execute_command(command_sip_peers_offline)
         asterisk_total_sip_peers_offline_metric.set({'type': "sip peers offline", }, sip_peers_offline)
-        
-        core_uptime = os.popen(command_core_uptime).read()
+
+        core_uptime = execute_command(command_core_uptime)
         asterisk_total_core_uptime_metric.set({'type': "core uptime", }, core_uptime)
-                
-        
+
+        cpu_usage = execute_command(command_cpu_usage)
+        cpu_usage_metric.set({'type': "cpu usage", }, cpu_usage)
+
+        ram_usage = execute_command(command_ram_usage)
+        ram_usage_metric.set({'type': "ram usage", }, ram_usage)
+
+        disk_usage = execute_command(command_disk_usage)
+        disk_usage_metric.set({'type': "disk usage", }, disk_usage)
+
+
+
 if __name__ == "__main__":
 
     registry = Registry()
